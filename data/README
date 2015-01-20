@@ -1,0 +1,21 @@
+You should place your DA model spectra in this folder 
+
+The read routine of this module is designed for Detlev Koester's DA Models.
+The files should be placed in this directory and should be structured as follows: 
+
+Name: 
+
+daTTTTT_GGG.dk
+
+where TTTTT is the model's effective temperature and GGG is 10*logg. 
+
+e.g "da10000_700.dk", "da09500_625.dk" etc…
+
+Structure:
+
+Lines 1-16: Header 
+
+Lines 17-END: 
+Two columns: $1 Wavelength (in A) and Flux
+
+ 
