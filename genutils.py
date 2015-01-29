@@ -21,6 +21,10 @@ def bestfit(x,y,sigmarange=None):
 def doppler(v):
     return 1. + v/299792.458
 
+def inversedoppler(v):
+    return 299792.458/(v + 299792.458)
+
+
 
 def polyfit2d(x, y, z):
     V=np.polynomial.polynomial.polyvander2d(x,y,[2,2])
@@ -29,6 +33,7 @@ def polyfit2d(x, y, z):
     V[:,8] = 0
     m,_,_,_ = np.linalg.lstsq(V, z)
     return m
+
 
 
 def polyval2d(x, y, m):

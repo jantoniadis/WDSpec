@@ -8,41 +8,49 @@ from matplotlib import pyplot as plt
 class ErrorContinue(Exception):
        pass
 
-def findvel(s,m,vgrid,plot=False,pold=3,sigmarange=0.5):
+def findvel(s,m,vgrid,pold=3,sigma=0.5,plot=False):
 #todo. cover case len(vgrid)=1=v
        chi2 = Table([vgrid,np.zeros_like(vgrid),np.zeros_like(vgrid)],names=['v','chi2','chi2red'])
        chi2['chi2'] = np.array([Fit(s,m(v),degree=pold)()[0] for v in vgrid])
        chi2.meta['ndof'] = len(s[:,1]) - 2. - pold
        chi2['chi2red'] = chi2['chi2']/chi2.meta['ndof']
 
-       if plot:
-           plt.scatter(chi2['v'], chi2['chi2'])
 
 
        if len(vgrid) < 3:
-           ibest = chi2['chi2'].argmin()
-           vbest, bestchi2,bestchi2red = chi2[ibest]
-           chi2.meta['vbest'] = vbest
-           chi2.meta['verr'] = 0.
-           chi2.meta['bestchi2'] = bestchi2
-           return chi2,Fit(s,m(chi2.meta['vbest']))()[1]
+            ibest = chi2['chi2'].argmin()
+            vbest, bestchi2,bestchi2red = chi2[ibest]
+            chi2.meta['vbest'] = vbest
+            chi2.meta['verr'] = 0.
+            chi2.meta['bestchi2'] = bestchi2
+            sol = 0
        else:
-           chi2.meta['vbest'], chi2.meta['verr'], chi2.meta['bestchi2'] = minchi2(chi2,sigmarange,plot=plot)
-           return chi2,Fit(s,m(chi2.meta['vbest']))()[1]
-           
-def minchi2(chi2,sigmarange=None,plot=False):
+            chi2.meta['vbest'], chi2.meta['verr'], chi2.meta['bestchi2'], sol = minchi2(chi2,sigmarange=sigma)
+
+
+            if plot:
+
+                plt.plot(chi2['v'],polyval(chi2['v'],sol),color='r')
+                plt.scatter(chi2['v'], chi2['chi2'])
+                plt.show()
+
+
+       return chi2, Fit(s,m(chi2.meta['vbest']))()[1], sol
+
+
+
+def minchi2(chi2,sigmarange=None):
        if sigmarange is None:
-           sigmarange = 1e+10
+           sigmarange = 0.5
        ibest = chi2['chi2'].argmin()
-       i = np.where((chi2['chi2'] < chi2['chi2'][ibest]*(1. + sigmarange)))
+       i = np.where((chi2['chi2'] < chi2['chi2'][ibest] + (sigmarange)))
        sol = polyfit(chi2['v'][i],chi2['chi2'][i],2)
-       if plot:
-               plt.plot(chi2['v'][i],polyval(chi2['v'][i],sol),color='r')
+
        vbest = -sol[1]/2./sol[2]
-       verr = np.sqrt(polyval(vbest,sol)/chi2.meta['ndof']/sol[2])  
+       verr = np.sqrt(polyval(vbest,sol)/chi2.meta['ndof']/sol[2])
        bestchi2 = polyval(vbest,sol)
 
-       return vbest, verr, bestchi2
+       return vbest, verr, bestchi2, sol
 
 
 class Fit(object):
