@@ -72,4 +72,4 @@ def ml18_to_3d_logg(teff,logg):
 
     shift=ne.evaluate("(a1+a5*exp(-a6*((teff0-a7)**2)))+a2*exp(-a3*((teff0-(a4+a8*exp(-(a9+a11*teff0+a12*logg0)**2. *((teff0-a10)**2))))**2))")
 
-    return ne.evaluaate("logg+shift")
+    return ne.evaluate("logg+shift")
